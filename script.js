@@ -97,7 +97,7 @@ function createPipes() {
   for (let i = 0; i < max; i += 200) {
     let pipe = pipes.create(
       lastPipeX,
-      (game.world.height - 163) * Math.random() - 776,
+      (game.world.height - 263) * Math.random() - 676,
       "invertedPipe"
     );
     lastPipeX += 200;
