@@ -18,6 +18,8 @@ let scoreText;
 let text;
 let restartText;
 let playerDead;
+let highscore = 0;
+let highscoreText;
 
 const create = () => {
   lastPipeX = 300;
@@ -53,17 +55,26 @@ const create = () => {
     strokeThickness: 3,
   });
   scoreText.centerX = 320 / 2;
-  scoreText.centerY = game.world.height - 63 / 2;
+  scoreText.centerY = game.world.height - 63 / 1.75;
   restartText = game.add.text(0, 0, "", {
     fontSize: "24px",
     fill: "#FFF",
     strokeThickness: 3,
   });
+  highscoreText = game.add.text(0, 0, "Highcore: " + highscore, {
+    fontSize: "20px",
+    fill: "#FFF",
+    strokeThickness: 3,
+  });
+  highscoreText.centerX = 320 / 2;
+  highscoreText.centerY = game.world.height - 12;
 };
 
 const update = () => {
   scoreText.text = "Score: " + score / 2;
   if (scoreText.centerX < player.centerX) scoreText.centerX = player.centerX;
+  if (highscoreText.centerX < player.centerX)
+    highscoreText.centerX = player.centerX;
   keyboard.up.onDown.add(() => {
     if (!playerDead) {
       player.body.velocity.y = -150;
@@ -83,6 +94,7 @@ const update = () => {
     score += 2;
   }
   if (playerDead) {
+    if (highscore < score) highscore = Math.floor(score / 2);
     restartText.text = "Press R to restart";
     restartText.centerX = player.centerX;
     keyboard.r.onDown.add(() => {
