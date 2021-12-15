@@ -9,17 +9,21 @@ const preload = () => {
 let player;
 let keyboard;
 let pipes;
-let lastPipeX = 300;
+let lastPipeX;
 let ground;
 const max = 100000;
-let started = false;
-let score = 0;
+let started;
+let score;
 let scoreText;
 let text;
 let restartText;
-let playerDead = false;
+let playerDead;
 
 const create = () => {
+  lastPipeX = 300;
+  started = false;
+  playerDead = false;
+  score = 0;
   game.add.tileSprite(0, 0, max, 480, "background");
   game.world.setBounds(0, 0, max, 480);
   createPipes();
@@ -60,15 +64,19 @@ const create = () => {
 const update = () => {
   scoreText.text = "Score: " + score / 2;
   if (scoreText.centerX < player.centerX) scoreText.centerX = player.centerX;
-  if (keyboard.up.isDown) {
-    player.body.velocity.y = -150;
-    if (!started) {
-      started != started;
-      player.body.gravity.y = 300;
-      player.body.velocity.x = 75;
-      text.text = "";
+  keyboard.up.onDown.add(() => {
+    if (!playerDead) {
+      player.body.velocity.y = -150;
+      if (player.angle > -30) player.angle--;
+      if (!started) {
+        started = !started;
+        player.body.gravity.y = 300;
+        player.body.velocity.x = 75;
+        text.text = "";
+      }
     }
-  }
+  });
+  if (player.angle != 30 && started && !playerDead) player.angle++;
   game.physics.arcade.overlap(player, pipes, bpCollide);
   game.physics.arcade.overlap(player, ground, playerDies);
   if (pipes.getAt(score).centerX <= player.centerX) {
@@ -77,9 +85,9 @@ const update = () => {
   if (playerDead) {
     restartText.text = "Press R to restart";
     restartText.centerX = player.centerX;
-    if (keyboard.r.isDown) {
-      restart();
-    }
+    keyboard.r.onDown.add(() => {
+      game.state.start(game.state.current);
+    });
   }
 };
 
@@ -92,7 +100,7 @@ function createPipes() {
       (game.world.height - 163) * Math.random() - 776,
       "invertedPipe"
     );
-    lastPipeX += 175;
+    lastPipeX += 200;
     let invertedPipe = pipes.create(0, 0, "pipe");
     invertedPipe.centerX = pipe.centerX;
     invertedPipe.centerY = pipe.centerY + 850;
@@ -113,27 +121,9 @@ function playerDies() {
   playerDead = true;
 }
 
-function restart() {
-  text.text = "Press UP to start!";
-  text.centerX = 160;
-  player.centerY = game.world.centerY;
-  player.centerX = 0;
-  scoreText.text = "Score: 0";
-  scoreText.centerX = 320 / 2;
-  scoreText.centerY = game.world.height - 63 / 2;
-  restartText.text = "";
-  playerDead = false;
-  started = false;
-  score = 0;
-  pipes.removeChildren();
-  createPipes();
-  game.world.bringToTop(ground);
-  game.world.bringToTop(restartText);
-  game.world.bringToTop(scoreText);
-}
+var state = new Phaser.State();
+state.preload = preload;
+state.create = create;
+state.update = update;
 
-var game = new Phaser.Game(320, 480, Phaser.AUTO, "", {
-  preload: preload,
-  create: create,
-  update: update,
-});
+var game = new Phaser.Game(320, 480, Phaser.AUTO, "", state);
